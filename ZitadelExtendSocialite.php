@@ -1,13 +1,13 @@
 <?php
 
-namespace SocialiteProviders\Keycloak;
+namespace SocialiteProviders\Zitadel;
 
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
-class KeycloakExtendSocialite
+class ZitadelExtendSocialite
 {
     public function handle(SocialiteWasCalled $socialiteWasCalled): void
     {
-        $socialiteWasCalled->extendSocialite('keycloak', Provider::class);
+        $socialiteWasCalled->extendSocialite('zitadel', Provider::class);
     }
 }

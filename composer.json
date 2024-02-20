@@ -1,5 +1,5 @@
 {
-    "name": "socialiteproviders/keycloak",
+    "name": "socialiteproviders/zitadel",
     "description": "Keycloak OAuth2 Provider for Laravel Socialite",
     "license": "MIT",
     "keywords": [
@@ -16,9 +16,9 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/socialiteproviders/providers/issues",
-        "source": "https://github.com/socialiteproviders/providers",
-        "docs": "https://socialiteproviders.com/keycloak"
+        "issues": "https://github.com/mlaradji/laravel-socialite-zitadel",
+        "source": "https://github.com/mlaradji/laravel-socialite-zitadel",
+        "docs": "https://github.com/mlaradji/laravel-socialite-zitadel"
     },
     "require": {
         "php": "^8.0",
@@ -27,7 +27,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SocialiteProviders\\Keycloak\\": ""
+            "SocialiteProviders\\Zitadel\\": ""
         }
     }
 }

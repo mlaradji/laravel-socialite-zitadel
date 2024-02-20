@@ -1,6 +1,6 @@
 <?php
 
-namespace SocialiteProviders\Keycloak;
+namespace SocialiteProviders\Zitadel;
 
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
@@ -10,11 +10,11 @@ use SocialiteProviders\Manager\OAuth2\User;
 
 class Provider extends AbstractProvider
 {
-    public const IDENTIFIER = 'KEYCLOAK';
+    public const IDENTIFIER = 'ZITADEL';
 
     protected $scopeSeparator = ' ';
 
-    protected $scopes = ['openid'];
+    protected $scopes = ['openid', 'profile', 'email', 'email_verified', 'phone', 'phone_verified', 'address', 'given_name', 'family_name', 'gender', 'locale'];
 
     /**
      * {@inheritdoc}
@@ -26,7 +26,7 @@ class Provider extends AbstractProvider
 
     protected function getBaseUrl()
     {
-        return rtrim(rtrim($this->getConfig('base_url'), '/').'/realms/'.$this->getConfig('realms', 'master'), '/');
+        return rtrim($this->getConfig('base_url'), '/');
     }
 
     /**
@@ -34,7 +34,7 @@ class Provider extends AbstractProvider
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase($this->getBaseUrl().'/protocol/openid-connect/auth', $state);
+        return $this->buildAuthUrlFromBase($this->getBaseUrl().'/oauth/v2/authorize', $state);
     }
 
     /**
@@ -42,7 +42,7 @@ class Provider extends AbstractProvider
      */
     protected function getTokenUrl()
     {
-        return $this->getBaseUrl().'/protocol/openid-connect/token';
+        return $this->getBaseUrl().'/oauth/v2/token';
     }
 
     /**
@@ -50,7 +50,7 @@ class Provider extends AbstractProvider
      */
     protected function getUserByToken($token)
     {
-        $response = $this->getHttpClient()->get($this->getBaseUrl().'/protocol/openid-connect/userinfo', [
+        $response = $this->getHttpClient()->get($this->getBaseUrl().'/oidc/v1/userinfo', [
             RequestOptions::HEADERS => [
                 'Authorization' => 'Bearer '.$token,
             ],
@@ -68,7 +68,14 @@ class Provider extends AbstractProvider
             'id'        => Arr::get($user, 'sub'),
             'nickname'  => Arr::get($user, 'preferred_username'),
             'name'      => Arr::get($user, 'name'),
+            'given_name'      => Arr::get($user, 'given_name'),
+            'family_name'      => Arr::get($user, 'family_name'),
             'email'     => Arr::get($user, 'email'),
+            'email_verified'     => Arr::get($user, 'email_verified'),
+            'gender'     => Arr::get($user, 'gender'),
+            'locale'     => Arr::get($user, 'locale'),
+            'phone'     => Arr::get($user, 'phone'),
+            'phone_verified'     => Arr::get($user, 'phone_verified'),
         ]);
     }
 
@@ -86,7 +93,7 @@ class Provider extends AbstractProvider
      */
     public function getLogoutUrl(?string $redirectUri = null, ?string $clientId = null, ?string $idTokenHint = null, ...$additionalParameters): string
     {
-        $logoutUrl = $this->getBaseUrl().'/protocol/openid-connect/logout';
+        $logoutUrl = $this->getBaseUrl().'/oidc/v1/end_session';
 
         // Keycloak v18+ or before
         if ($redirectUri === null) {
@@ -98,8 +105,7 @@ class Provider extends AbstractProvider
             return $logoutUrl.'?redirect_uri='.urlencode($redirectUri);
         }
 
-        // Keycloak v18+
-        // https://www.keycloak.org/docs/18.0/securing_apps/index.html#logout
+        // https://zitadel.com/docs/guides/integrate/logout
         // https://openid.net/specs/openid-connect-rpinitiated-1_0.html
         $logoutUrl .= '?post_logout_redirect_uri='.urlencode($redirectUri);
 
